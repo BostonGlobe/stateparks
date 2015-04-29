@@ -7,8 +7,37 @@ output:
 ---
 
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(reshape2)
+library(lubridate)
 setwd("~/Documents/dev/stateparks/data")
 ```
 
-```{r, echo=FALSE, fig.width=12, fig.height=7}
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE, cache=TRUE}
+parks <- read.csv('output/openspace-table.csv', strip.white=TRUE, stringsAsFactors=FALSE, row.names=NULL)
+
+massparks <- parks %>%
+  filter(
+    OWNER_ABRV %in% c('DCRS', 'DCAM/DCRS', 'DCRS/DFG', 'DCRU') | MANAGR_ABR %in% c('DCRS', 'DCRS/M145', 'DCRU')
+  )
+```
+
+****
+What's the total number of acres owned by the state?
+```{r, results='asis', fig.width=10, fig.height=4, warning=FALSE, message=FALSE}
+sum(massparks$GIS_ACRES)
+```
+
+****
+How many acres were funded per year?
+```{r, results='asis', fig.width=10, fig.height=4, warning=FALSE, message=FALSE}
+massparks %>%
+  filter(FY_FUNDING > 0) %>%
+  group_by(FY_FUNDING) %>%
+  summarise(acres = sum(GIS_ACRES)) %>%
+  ggplot(aes(FY_FUNDING, acres)) +
+  geom_point()
 ```
