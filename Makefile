@@ -34,30 +34,30 @@ make_MA:
 
 make_MA-ocean:
 
-	cd data/downloaded/OpenStreetMap/water-polygons-split-4326; ogr2ogr -clipsrc -74.628 40.464 -69.058 43.948 MA-ocean.shp water_polygons.shp; \
+	cd data/downloaded/OpenStreetMap/water-polygons-split-4326; ogr2ogr -clipsrc -74.628 40.464 -69.058 43.948 MA-ocean.shp water_polygons.shp;
 	echo "HEY! Make sure to dissolve/merge all these polygons in QGIS."
 
-clean:
+shadedrelief-clean:
 	rm data/output/*;
 
-listgeo:
+shadedrelief-listgeo:
 
 	listgeo ${file} > data/output/meta.txt;
 
-slope:
+shadedrelief-slope:
 
 	gdaldem slope ${file} data/output/slope.tif -s 111120;
 	gdaldem color-relief data/output/slope.tif data/slope.txt data/output/slopeshade.tif;
 
-hillshade:	
+shadedrelief-hillshade:	
 
 	gdaldem hillshade ${file} data/output/hills.tif -s 111120;
 
-color-relief:
+shadedrelief-color:
 
 	gdaldem color-relief ${file} data/ramp.txt data/output/color.tif;
 
-merge:
+shadedrelief-merge:
 
 	cd data/output; \
 		convert -gamma 0.5 hills.tif hills_gamma.tif; \
@@ -66,24 +66,28 @@ merge:
 		convert output_temp.tif slopeshade_gamma.tif -compose linear-burn -composite output.tif; \
 		geotifcp -g meta.txt output.tif output-merged.tif;
 
-clipshadedrelief:
+shadedrelief-clip:
 
 	gdalwarp -dstnodata 255 -te -73.50823953186817 41.23796168918525 -69.92780164508935 42.886818298840936 data/output/output-merged.tif data/output/shadedrelief-MA.tif;
 
-shadedrelief-all: clean listgeo slope hillshade color-relief merge clipshadedrelief
+shadedrelief-all-steps: shadedrelief-clean shadedrelief-listgeo shadedrelief-slope shadedrelief-hillshade shadedrelief-color
 
 shadedrelief:
 
-	make shadedrelief-all file='data/downloaded/GMTED/30n090w_20101117_gmted_mea075.tif';
+	make shadedrelief-all-steps file='data/downloaded/GMTED/30n090w_20101117_gmted_mea075.tif';
 	cd data/output; \
-		rm -rf color.tif; \
-		rm -rf hills.tif; \
-		rm -rf hills_gamma.tif; \
-		rm -rf output.tif; \
-		rm -rf output_temp.tif; \
-		rm -rf slope.tif; \
-		rm -rf slopeshade.tif; \
-		rm -rf slopeshade_gamma.tif; \
+		gdalwarp -dstnodata 255 -te -73.50823953186817 41.23796168918525 -69.92780164508935 42.886818298840936 color.tif color-MA-bbox.tif; \
+		gdalwarp -dstnodata 255 -te -73.50823953186817 41.23796168918525 -69.92780164508935 42.886818298840936 hills.tif hills-MA-bbox.tif; \
+		gdalwarp -dstnodata 255 -te -73.50823953186817 41.23796168918525 -69.92780164508935 42.886818298840936 slopeshade.tif slopeshade-MA-bbox.tif;
+	# cd data/output; \
+	# 	rm -rf color.tif; \
+	# 	rm -rf hills.tif; \
+	# 	rm -rf hills_gamma.tif; \
+	# 	rm -rf output.tif; \
+	# 	rm -rf output_temp.tif; \
+	# 	rm -rf slope.tif; \
+	# 	rm -rf slopeshade.tif; \
+	# 	rm -rf slopeshade_gamma.tif; \
 
 
 
