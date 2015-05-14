@@ -1,5 +1,18 @@
 .article-graphic.map {
 
+	.g-aiAbs {
+		text-shadow: 1px 1px 0 rgb(237, 237, 238);
+	}
+
+	span.bostons {
+
+		img {
+			height: 1em;
+			margin-right: -3px;
+			margin-bottom: -1px;
+		}
+	}
+
 	.source-and-credit {
 		@include rhythm(0, 0, 0, 0);
 	}
