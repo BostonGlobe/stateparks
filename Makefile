@@ -90,6 +90,12 @@ shadedrelief:
 	# 	rm -rf slopeshade_gamma.tif; \
 
 
+gabriel:
+
+	gdalwarp -t_srs EPSG:26986 data/shaded-relief-MA.tif data/shaded-relief-MA-26986.tif
+
+
+
 
 
 
